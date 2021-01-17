@@ -1,0 +1,299 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>C++中的重写、隐藏与重载的区别 | Huol&#39;s blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="huolonggou">
+    
+    <meta name="description" content="C++面向对象的一些易混淆概念重写(覆盖)：是指派生类中存在重新定义的函数。其函数名，参数列表，返回值类型，所有都必须同基类中被重写的函数一致。只有函数体不同（花括号内），派生类调用时会调用派生类的重写函数，不会调用被重写函数。重写的基类中被重写的函数必须有virtual修饰。
+隐藏：是指派生类的函">
+    
+    
+    
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/pacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/pacman.jpg">
+    
+    
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.svg" alt="Huol&#39;s blog" title="Huol&#39;s blog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Huol&#39;s blog">Huol&#39;s blog</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+					<li>
+					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:example.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/11/14/C和C++/C++中的重写,隐藏,重载/" title="C++中的重写、隐藏与重载的区别" itemprop="url">C++中的重写、隐藏与重载的区别</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://example.com" title="huolonggou">huolonggou</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2019-11-14T04:50:05.212Z" itemprop="datePublished">2019-11-14</time>
+    更新日期:<time datetime="2021-01-17T10:31:50.804Z" itemprop="dateModified">2021-01-17</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#C-%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%9A%84%E4%B8%80%E4%BA%9B%E6%98%93%E6%B7%B7%E6%B7%86%E6%A6%82%E5%BF%B5"><span class="toc-number">1.</span> <span class="toc-text">C++面向对象的一些易混淆概念</span></a></li></ol>
+		</div>
+		
+		<h3 id="C-面向对象的一些易混淆概念"><a href="#C-面向对象的一些易混淆概念" class="headerlink" title="C++面向对象的一些易混淆概念"></a>C++面向对象的一些易混淆概念</h3><p>重写(覆盖)：是指派生类中存在重新定义的函数。其函数名，参数列表，返回值类型，所有都必须同基类中被重写的函数一致。只有函数体不同（花括号内），派生类调用时会调用派生类的重写函数，不会调用被重写函数。重写的基类中被重写的函数必须有virtual修饰。</p>
+<p>隐藏：是指派生类的函数屏蔽了与其同名的基类函数，注意只要同名函数且没有被virtual关键字修饰，不管参数列表是否相同，基类函数都会被隐藏。</p>
+<p>重载：是指同一类中内被声明的几个具有不同参数列（参数的类型，个数，顺序不同）的同名函数，根据参数列表确定调用哪个函数，重载不关心函数返回类型。<br>注:</p>
+<ul>
+<li>重写和被重写的函数在不同的类中，隐藏函数和被隐藏函数在不同类中,重载和被重载的函数在同一类中.</li>
+<li>重写与被重写的函数参数列表一定相同且必须有virtual修饰，重载和被重载的函数参数列表一定不同。</li>
+<li>当参数不同时，无论基类中的函数是否被virtual修饰，基类函数都是被隐藏，而不是被重写。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line">#include&lt;iostream&gt;</span><br><span class="line">using namespace std;</span><br><span class="line">class base</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	int x;</span><br><span class="line">public:</span><br><span class="line">	base()</span><br><span class="line">	&#123;</span><br><span class="line">		x &#x3D; 100;</span><br><span class="line">	&#125;</span><br><span class="line">	void func1()</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; &quot;base::func1调用&quot;&lt;&lt;endl;</span><br><span class="line">	&#125;</span><br><span class="line">	virtual void func2()</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; &quot;base::func2调用&quot; &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line">class sub : public base</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	int x;</span><br><span class="line">public:</span><br><span class="line">	sub()</span><br><span class="line">	&#123;</span><br><span class="line">		x &#x3D; 200;</span><br><span class="line">	&#125;</span><br><span class="line">	void func1()</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; &quot;sub::func1调用&quot; &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	virtual void func2()</span><br><span class="line">	&#123;</span><br><span class="line">		cout &lt;&lt; &quot;sub::func2调用&quot; &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">int main(int argc, char** argv)</span><br><span class="line">&#123;</span><br><span class="line">	sub b;</span><br><span class="line">	base * p1&#x3D;&amp;b;</span><br><span class="line">	p1-&gt;func1();</span><br><span class="line">	p1-&gt;func2();</span><br><span class="line">	cout &lt;&lt; p1-&gt;x &lt;&lt; endl;</span><br><span class="line">	sub* p2 &#x3D; &amp;b;</span><br><span class="line">	p2-&gt;func1();</span><br><span class="line">	p2-&gt;func2();</span><br><span class="line">	cout &lt;&lt; p2-&gt;x &lt;&lt; endl;</span><br><span class="line">	return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+输出结果:<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">base::func1调用</span><br><span class="line">sub::func2调用</span><br><span class="line">100</span><br><span class="line">sub::func1调用</span><br><span class="line">sub::func2调用</span><br><span class="line">200</span><br></pre></td></tr></table></figure>
+注意以上代码中定义基类和派生类中定义了同名变量x,在为子类对象分配空间时并没有将同名变量覆盖,而是分配了两个4字节,在用基类引用访问时访问时访问到了存有100的那片空间,而用子类访问时则访问到了存有200的那片空间.</li>
+</ul>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://example.com/2019/11/14/C%E5%92%8CC++/C++%E4%B8%AD%E7%9A%84%E9%87%8D%E5%86%99,%E9%9A%90%E8%97%8F,%E9%87%8D%E8%BD%BD/" data-title="C++中的重写、隐藏与重载的区别 | Huol&#39;s blog" data-tsina="" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2019/11/15/Windows机制/利用WinApi列出进程/" title="利用winAPI列出进程">
+  <strong>PREVIOUS:</strong><br/>
+  <span>
+  利用winAPI列出进程</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2019/11/01/Windows机制/Windows下进程创建/"  title="Windows进程创建过程">
+ <strong>NEXT:</strong><br/> 
+ <span>Windows进程创建过程
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+  <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#C-%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%9A%84%E4%B8%80%E4%BA%9B%E6%98%93%E6%B7%B7%E6%B7%86%E6%A6%82%E5%BF%B5"><span class="toc-number">1.</span> <span class="toc-text">C++面向对象的一些易混淆概念</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+
+  
+
+  <div class="rsspart">
+	<a href="" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		
+		
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2021 
+		
+		<a href="http://example.com" target="_blank" title="huolonggou">huolonggou</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+
+
+
+  </body>
+</html>

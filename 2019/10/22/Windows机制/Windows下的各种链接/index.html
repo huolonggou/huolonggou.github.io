@@ -1,0 +1,303 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>Windows系统下各种链接知识总结 | Huol&#39;s blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="huolonggou">
+    
+    <meta name="description" content="0x00 硬链接和GNU/Linux相同的是，Windows也有自己的链接创建工具mklink。Windows下的硬链接只允许在NTFS格式的文件系统下创建（通过CreateHardLink()系统调用），并且和Linux一样，硬链接的创建只能针对文件，而不能针对目录。
+创建硬链接的命令时mklin">
+    
+    
+    
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/pacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/pacman.jpg">
+    
+    
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.svg" alt="Huol&#39;s blog" title="Huol&#39;s blog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Huol&#39;s blog">Huol&#39;s blog</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+					<li>
+					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:example.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/10/22/Windows机制/Windows下的各种链接/" title="Windows系统下各种链接知识总结" itemprop="url">Windows系统下各种链接知识总结</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://example.com" title="huolonggou">huolonggou</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2019-10-22T13:36:01.062Z" itemprop="datePublished">2019-10-22</time>
+    更新日期:<time datetime="2021-01-17T10:24:28.813Z" itemprop="dateModified">2021-01-17</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#0x00-%E7%A1%AC%E9%93%BE%E6%8E%A5"><span class="toc-number">1.</span> <span class="toc-text">0x00 硬链接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x01-%E7%AC%A6%E5%8F%B7%E9%93%BE%E6%8E%A5"><span class="toc-number">2.</span> <span class="toc-text">0x01 符号链接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x02-junction%E9%93%BE%E6%8E%A5"><span class="toc-number">3.</span> <span class="toc-text">0x02 junction链接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x03-%E5%BF%AB%E6%8D%B7%E6%96%B9%E5%BC%8F"><span class="toc-number">4.</span> <span class="toc-text">0x03 快捷方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x04-%E6%80%BB%E7%BB%93%E4%B8%8E%E5%8C%BA%E5%88%AB"><span class="toc-number">5.</span> <span class="toc-text">0x04 总结与区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E4%BA%8EWinSxS%E7%9A%84%E8%A1%A5%E5%85%85"><span class="toc-number">6.</span> <span class="toc-text">关于WinSxS的补充</span></a></li></ol>
+		</div>
+		
+		<h3 id="0x00-硬链接"><a href="#0x00-硬链接" class="headerlink" title="0x00 硬链接"></a>0x00 硬链接</h3><p>和GNU/Linux相同的是，Windows也有自己的链接创建工具mklink。Windows下的硬链接只允许在NTFS格式的文件系统下创建（通过CreateHardLink()系统调用），并且和Linux一样，硬链接的创建只能针对文件，而不能针对目录。</p>
+<p>创建硬链接的命令时mklink /H &lt; destination &gt; &lt; source &gt;，在创建后的图标也和原文件的图标一样，在属性中也无法看出其中的链接关系。唯一的方法就是通过fsutil hardlink list &lt; filepath &gt;来查看一个文件包含了多少硬链接。创建硬链接后，文件属性显示空间占用是与原文件大小相同的，但是实际上它并没有占用空间，真实的空间占用为0，硬链接不会把文件再复制一份。</p>
+<h3 id="0x01-符号链接"><a href="#0x01-符号链接" class="headerlink" title="0x01 符号链接"></a>0x01 符号链接</h3><p>创建符号（软）链接的命令为mklink &lt; destination &gt; &lt; source &gt;，也就是不为mklink提供其他的参数。建立之后，我们会发现软链接图标带有一个快捷方式样式的箭头，但是其文件属性的类型仍为原来的文件类型，Size却为0，并且有很多项都是灰色disable状态。<br>但是需要说明的是，通过这种方式建立软链接只能针对文件建立。如果需要给文件夹建立软链接，那么就需要通过加入/D参数来建立，详情见mklink命令说明。</p>
+<h3 id="0x02-junction链接"><a href="#0x02-junction链接" class="headerlink" title="0x02 junction链接"></a>0x02 junction链接</h3><p>Junction是Windows NTFS特有的一种链接方式。Junction和软链接类似，也是通过记录文件路径来访问文件。但是首先，Junction只针对文件夹，我们不能为文件建立Junction；其次，当我们删除Junction链接后，原文件夹也会被删除。Junction最常用的地方是用户目录下，我们会看到一些带有快捷方式图标的隐藏文件夹，但是当我们试图去访问的时候，则会被拒绝（即使是管理员也不行）。</p>
+<p>我们可以通过mklink /J &lt; destination &gt; &lt; source &gt;命令来建立Junction。在直观看来，Junction似乎也是介于软硬链接之间的一种奇葩存在，比如Junction的图标是带有箭头的，但是在文件夹的属性中，却看不到类似于软链接的那种shortcut选项卡，更像是硬链接的感觉。</p>
+<p>实际上，Windows之所以要在用户目录下面建立诸多的Junction的目的就在于和老版本的软件兼容。我们知道在xp时代，程序数据通常储存在Application Data文件夹中，但是当Windows转向Vista时，目录名和位置都有所变化，变成了AppData，这样，对于以前的硬编码安装路径的程序，就会遇到安装错误的问题。于是MS决定通过Junction的方式来解决。这样当某个程序访问或写入Application Data时，其所访问的是AppData文件夹，这样就避免了版本不兼容的问题。</p>
+<h3 id="0x03-快捷方式"><a href="#0x03-快捷方式" class="headerlink" title="0x03 快捷方式"></a>0x03 快捷方式</h3><p>其实我们最熟悉也是最常用的快捷方式并不属于传统概念上的“链接”。虽然似乎快捷方式有点类似于软链接，但是它们的本质还是非常不同的。链接其实更贴近操作系统和文件系统的概念。而快捷方式，其实是一个真真实实的以lnk作为文件类型的文件。只不过操作系统（更确切的说是Windows的shell，explorer）可以对这种lnk文件解释而已。而快捷方式的功能其实也要比传统的Linux或WIndows的软链接的功能更强大一些。如果我们打开一个快捷方式的属性，我们就会发现原来在软链接的属性中不可修改的部分都变成了可以修改的，这里面包含了文件的打开方式，快捷键，以何种窗口模式打开等属性。</p>
+<p>也就是说，快捷方式不同于软链接的地方，就是它不仅仅是个包含文件路径的文件，而是增加了许多其他信息。这种和窗口化相关的信息如果基于文件系统自然是非常不便的，所以MS就单独设计了lnk文件，由explorer来执行。</p>
+<h3 id="0x04-总结与区别"><a href="#0x04-总结与区别" class="headerlink" title="0x04 总结与区别"></a>0x04 总结与区别</h3><p>所谓硬链接，我们可以理解为硬链接持有的是文件本身（而不是路径）的引用。也就是说，当我们给一个名为a.txt的文件建立硬链接（b.txt）后，那么b.txt指向的位置就是a.txt这个文件本身，而此时，a.txt和b.txt是同级平行的，这个文本文件此时同时拥有两个文件名。当我们删除a.txt时，只是删除了a.txt这个文件名，这个文件仍然被b.txt所引用，所以我们还能够通过b.txt访问。而软链接，持有的则是原链接路径。比如a.txt位于 ../Document/a.txt ，那么为其建立软链接b.txt的内容就是 ../Document/a.txt，此时，我们访问b.txt，其实是在按照a.txt的路径去访问a.txt。如果我们这时删除a.txt这个文件，那么b.txt也会无效，因为文件已经不存在了。</p>
+<p>而junction链接则是介于软链接和硬链接之间的一种为了解决向下兼容问题的独特链接，快捷方式则是对软链接的一种补充，ink格式的文件提供了我们对打开方式修改的能力。</p>
+<h3 id="关于WinSxS的补充"><a href="#关于WinSxS的补充" class="headerlink" title="关于WinSxS的补充"></a>关于WinSxS的补充</h3><p>WinSxS位于%systemroot%\WinSxS，其中存放的是Windows系统文件以及DLL文件的若干个副本。由于应用程序可以使用同一个DLL文件，因此出于兼容性与还原至旧版本的考虑，系统会在这里存放多个不同版本的文件副本。</p>
+<p>使用一些硬链接查看的工具可以发现，Windows当中的大部分系统文件都是该目录下文件的硬链接。因此该目录是系统正常运行不可或缺的。<br>为一个文件创造硬链接后使用fsutil工具查看会显示出原文件和目标文件的路径。</p>
+<p><img src="hardlink1.png"></p>
+<p><img src="hardlink2.png"></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://example.com/2019/10/22/Windows%E6%9C%BA%E5%88%B6/Windows%E4%B8%8B%E7%9A%84%E5%90%84%E7%A7%8D%E9%93%BE%E6%8E%A5/" data-title="Windows系统下各种链接知识总结 | Huol&#39;s blog" data-tsina="" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2019/10/22/C和C++/C语言预处理/" title="C语言预处理机制">
+  <strong>PREVIOUS:</strong><br/>
+  <span>
+  C语言预处理机制</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2019/10/22/Windows机制/confusing x86-64/"  title="x86和x64汇编传参问题">
+ <strong>NEXT:</strong><br/> 
+ <span>x86和x64汇编传参问题
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+  <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#0x00-%E7%A1%AC%E9%93%BE%E6%8E%A5"><span class="toc-number">1.</span> <span class="toc-text">0x00 硬链接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x01-%E7%AC%A6%E5%8F%B7%E9%93%BE%E6%8E%A5"><span class="toc-number">2.</span> <span class="toc-text">0x01 符号链接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x02-junction%E9%93%BE%E6%8E%A5"><span class="toc-number">3.</span> <span class="toc-text">0x02 junction链接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x03-%E5%BF%AB%E6%8D%B7%E6%96%B9%E5%BC%8F"><span class="toc-number">4.</span> <span class="toc-text">0x03 快捷方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x04-%E6%80%BB%E7%BB%93%E4%B8%8E%E5%8C%BA%E5%88%AB"><span class="toc-number">5.</span> <span class="toc-text">0x04 总结与区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E4%BA%8EWinSxS%E7%9A%84%E8%A1%A5%E5%85%85"><span class="toc-number">6.</span> <span class="toc-text">关于WinSxS的补充</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+
+  
+
+  <div class="rsspart">
+	<a href="" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		
+		
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2021 
+		
+		<a href="http://example.com" target="_blank" title="huolonggou">huolonggou</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+
+
+
+  </body>
+</html>

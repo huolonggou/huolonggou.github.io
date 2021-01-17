@@ -1,0 +1,301 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>Windows溢出保护机制 | Huol&#39;s blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="huolonggou">
+    
+    <meta name="description" content="ALSRALSR一般分为映像随机化,堆栈随机化和PEB,TEB随机化三种。
+
+映像随机化是在PE文件映射到内存时，对其加载的虚拟地址进行随机化处理，这个地址在系统启动时确定，系统重启后该地址会变化。
+堆栈随机化对应的是在运行时随机的选择堆栈的基址，与映像基址随机化不同的是堆栈的基址不是在系统启动的时">
+    
+    
+    
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/pacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/pacman.jpg">
+    
+    
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.svg" alt="Huol&#39;s blog" title="Huol&#39;s blog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Huol&#39;s blog">Huol&#39;s blog</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+					<li>
+					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:example.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/12/15/Windows机制/Windows Mitigation/" title="Windows溢出保护机制" itemprop="url">Windows溢出保护机制</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://example.com" title="huolonggou">huolonggou</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2019-12-15T08:46:27.214Z" itemprop="datePublished">2019-12-15</time>
+    更新日期:<time datetime="2021-01-17T10:23:40.860Z" itemprop="dateModified">2021-01-17</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#ALSR"><span class="toc-number">1.</span> <span class="toc-text">ALSR</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DEP"><span class="toc-number">2.</span> <span class="toc-text">DEP</span></a></li></ol>
+		</div>
+		
+		<h3 id="ALSR"><a href="#ALSR" class="headerlink" title="ALSR"></a>ALSR</h3><p>ALSR一般分为映像随机化,堆栈随机化和PEB,TEB随机化三种。</p>
+<ol>
+<li>映像随机化是在PE文件映射到内存时，对其加载的虚拟地址进行随机化处理，这个地址在系统启动时确定，系统重启后该地址会变化。</li>
+<li>堆栈随机化对应的是在运行时随机的选择堆栈的基址，与映像基址随机化不同的是堆栈的基址不是在系统启动的时候确定的，而是在打开程序的时候确定的</li>
+<li>PEB与TEB随机化在WinXP sp2就引入了,不再使用固定的PEB基址0x7FFDF00和TEB基址0x7FFDE00,获取当前进程的TEB和PEB很简单,TEB存放在FS:0和FS:[0x18]处,PEB存放在TEB偏移0x30处的位置。<h3 id="DEP"><a href="#DEP" class="headerlink" title="DEP"></a>DEP</h3>DEP英文全称是DEP（Data Execution Prevention）即数据执行保护,DEP基本原理是将数据所在的页面标识设置为不可执行,当溢出攻击发生时会被cpu拒绝执行.DEP的主要作用是阻止数据页（如默认的堆页、各种堆栈页以及内存池页）执行代码。可以分为软件DEP和硬件DEP:<br>软件DEP就是SafeSEH。<br>硬件DEP：需要CPU支持，AMD称为No-Execute Page-Protection(NX)、Intel称为Execute Disable Bit(XD)。操作系统通过设置内存页的NX/XD属性标记，来指明是否可以从该内存中执行代码。所以页面表(Page Table)中需要加入特殊标识位(NX/XD)，若其为0表示页面允许执行，为1表示不允许执行。<br>DEP级别:</li>
+<li>Optin：默认仅将DEP保护用于Windows系统组件和服务，对于其他程序不予保护,可通过编译器设置使用户程序也支持DEP.</li>
+<li>Optout：为排除列表程序外的所有程序和服务启用DEP，用户可以手动在排除列表中指定不启用DEP保护的程序和服务。这种状态可以被动态关闭，多用于服务器版操作系统.</li>
+<li>AlwaysOn：对所有进程启用DEP的保护，不存在排序列表，这种模式下，DEP不可以被关闭，目前只有64位操作系统上才工作在AlwaysOn模式</li>
+<li>AlwaysOff：对所有进程都禁用DEP，在这种模式下，DEP也不能被动态开启，这种模式一般只有在某种特定场合才使用，如DEP干扰到程序的正常运行</li>
+</ol>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://example.com/2019/12/15/Windows%E6%9C%BA%E5%88%B6/Windows%20Mitigation/" data-title="Windows溢出保护机制 | Huol&#39;s blog" data-tsina="" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2020/01/11/网络编程/java网络编程/" title="Java网络编程">
+  <strong>PREVIOUS:</strong><br/>
+  <span>
+  Java网络编程</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2019/11/27/Windows机制/Windows下的关键进程及线程/"  title="Windows下的关键进程及线程">
+ <strong>NEXT:</strong><br/> 
+ <span>Windows下的关键进程及线程
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+  <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#ALSR"><span class="toc-number">1.</span> <span class="toc-text">ALSR</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DEP"><span class="toc-number">2.</span> <span class="toc-text">DEP</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+
+  
+
+  <div class="rsspart">
+	<a href="" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		
+		
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2021 
+		
+		<a href="http://example.com" target="_blank" title="huolonggou">huolonggou</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+
+
+
+  </body>
+</html>

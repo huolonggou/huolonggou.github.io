@@ -1,0 +1,296 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>ntdll提权函数使用 | Huol&#39;s blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="huolonggou">
+    
+    <meta name="description" content="RtlAdjustPrivilege函数略解NTSTATUS RtlAdjustPrivilege(ULONG Privilege,BOOLEAN Enable,BOOLEAN CurrentThread,PBOOLEAN Enabled)
+参数的含义：Privilege [In] Privileg">
+    
+    
+    
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/pacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/pacman.jpg">
+    
+    
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.svg" alt="Huol&#39;s blog" title="Huol&#39;s blog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Huol&#39;s blog">Huol&#39;s blog</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+					<li>
+					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:example.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/10/30/Windows机制/ntdll内的提权函数/" title="ntdll提权函数使用" itemprop="url">ntdll提权函数使用</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://example.com" title="huolonggou">huolonggou</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2019-10-30T11:45:31.746Z" itemprop="datePublished">2019-10-30</time>
+    更新日期:<time datetime="2021-01-17T10:21:48.193Z" itemprop="dateModified">2021-01-17</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#RtlAdjustPrivilege%E5%87%BD%E6%95%B0%E7%95%A5%E8%A7%A3"><span class="toc-number">1.</span> <span class="toc-text">RtlAdjustPrivilege函数略解</span></a></li></ol>
+		</div>
+		
+		<h3 id="RtlAdjustPrivilege函数略解"><a href="#RtlAdjustPrivilege函数略解" class="headerlink" title="RtlAdjustPrivilege函数略解"></a>RtlAdjustPrivilege函数略解</h3><p>NTSTATUS RtlAdjustPrivilege<br>(<br>ULONG Privilege,<br>BOOLEAN Enable,<br>BOOLEAN CurrentThread,<br>PBOOLEAN Enabled<br>)</p>
+<p>参数的含义：<br>Privilege [In] Privilege index to change.<br>// 所需要的权限名称，可以到 MSDN 查找关于 Process Token &amp; Privilege 内容可以查到</p>
+<p>Enable [In] If TRUE, then enable the privilege otherwise disable.<br>// 如果为True 就是打开相应权限，如果为False 则是关闭相应权限</p>
+<p>CurrentThread [In] If TRUE, then enable in calling thread, otherwise process.<br>// 如果为True 则仅提升当前线程权限，否则提升整个进程的权限</p>
+<p>Enabled [Out] Whether privilege was previously enabled or disabled.<br>// 输出该权限之前的状态是开启还是关闭</p>
+<p>权限ID对应的字码以及描述<br>1.SeCreateTokenPrivilege 0x2 Create a token object<br>2.SeAssignPrimaryTokenPrivilege 0x3 Replace a process level token<br>3.SeLockMemoryPrivilege 0x4 Lock pages in memory<br>4.SeIncreaseQuotaPrivilege 0x5 Adjust memory quotas for a process<br>5.SeUnsolicitedInputPrivilege 0x0<br>6.SeMachineAccountPrivilege 0x6<br>7.SeTcbPrivilege 0x7 Act as part of the operating system<br>8.SeSecurityPrivilege 0x8 Manage auditing and security log<br>9.SeTakeOwnershipPrivilege 0x9 Take ownership of files or other objects<br>10.SeLoadDriverPrivilege 0xa Load and unload device drivers<br>11.SeSystemProfilePrivilege 0xb Profile system performance<br>12.SeSystemtimePrivilege 0xc Change the system time<br>13.SeProfileSingleProcessPrivilege 0xd Profile single process<br>14.SeIncreaseBasePriorityPrivilege 0xe Increase scheduling priority<br>15.SeCreatePagefilePrivilege 0xf Create a pagefile<br>16.SeCreatePermanentPrivilege 0x10 Create permanent shared objects<br>17.SeBackupPrivilege 0x11<br>18.SeRestorePrivilege 0x12<br>19.SeShutdownPrivilege 0x13<br>20.SeDebugPrivilege 0x14<br>21.SeAuditPrivilege 0x15 Generate security audits<br>22.SeSystemEnvironmentPrivilege 0x16 Modify firmware environment values<br>23.SeChangeNotifyPrivilege 0x17 Bypass traverse checking<br>24.SeRemoteShutdownPrivilege 0x18<br>25.SeUndockPrivilege 0x19 Remove computer from docking station<br>26.SeSyncAgentPrivilege 0x1a<br>27.SeEnableDelegationPrivilege 0x1b<br>28.SeManageVolumePrivilege 0x1c Perform volume maintenance tasks<br>29.SeImpersonatePrivilege 0x1d Impersonate a client after authentication<br>30.SeCreateGlobalPrivilege 0x1e<br>31.SeTrustedCredManAccessPrivilege 0x1f Access Credential Manager as a trusted caller<br>32.SeRelabelPrivilege 0x20 Modify an object label<br>33.SeIncreaseWorkingSetPrivilege 0x21 Increase a process working set<br>34.SeTimeZonePrivilege 0x22<br>35.SeCreateSymbolicLinkPrivilege 0x23</p>
+<p>以下是以管理员权限打开powershell后摘录的权限描述:<br>特权名                                    描述                               状态<br>========================================= ================================== ======<br>SeIncreaseQuotaPrivilege                  为进程调整内存配额                 已禁用<br>SeSecurityPrivilege                       管理审核和安全日志                 已禁用<br>SeTakeOwnershipPrivilege                  取得文件或其他对象的所有权         已禁用<br>SeLoadDriverPrivilege                     加载和卸载设备驱动程序             已禁用<br>SeSystemProfilePrivilege                  配置文件系统性能                   已禁用<br>SeSystemtimePrivilege                     更改系统时间                       已禁用<br>SeProfileSingleProcessPrivilege           配置文件单一进程                   已禁用<br>SeIncreaseBasePriorityPrivilege           提高计划优先级                     已禁用<br>SeCreatePagefilePrivilege                 创建一个页面文件                   已禁用<br>SeBackupPrivilege                         备份文件和目录                     已禁用<br>SeRestorePrivilege                        还原文件和目录                     已禁用<br>SeShutdownPrivilege                       关闭系统                           已禁用<br>SeDebugPrivilege                          调试程序                           已启用<br>SeSystemEnvironmentPrivilege              修改固件环境值                     已禁用<br>SeChangeNotifyPrivilege                   绕过遍历检查                       已启用<br>SeRemoteShutdownPrivilege                 从远程系统强制关机                 已禁用<br>SeUndockPrivilege                         从扩展坞上取下计算机               已禁用<br>SeManageVolumePrivilege                   执行卷维护任务                     已禁用<br>SeImpersonatePrivilege                    身份验证后模拟客户端               已启用<br>SeCreateGlobalPrivilege                   创建全局对象                       已启用<br>SeIncreaseWorkingSetPrivilege             增加进程工作集                     已禁用<br>SeTimeZonePrivilege                       更改时区                           已禁用<br>SeCreateSymbolicLinkPrivilege             创建符号链接                       已禁用<br>SeDelegateSessionUserImpersonatePrivilege 获取同一会话中另一个用户的模拟令牌 已禁用</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://example.com/2019/10/30/Windows%E6%9C%BA%E5%88%B6/ntdll%E5%86%85%E7%9A%84%E6%8F%90%E6%9D%83%E5%87%BD%E6%95%B0/" data-title="ntdll提权函数使用 | Huol&#39;s blog" data-tsina="" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2019/11/01/Windows机制/Windows下进程创建/" title="Windows进程创建过程">
+  <strong>PREVIOUS:</strong><br/>
+  <span>
+  Windows进程创建过程</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2019/10/22/Windows机制/Windows对Unicode的支持/"  title="Windows编程中的Unicode问题">
+ <strong>NEXT:</strong><br/> 
+ <span>Windows编程中的Unicode问题
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+  <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#RtlAdjustPrivilege%E5%87%BD%E6%95%B0%E7%95%A5%E8%A7%A3"><span class="toc-number">1.</span> <span class="toc-text">RtlAdjustPrivilege函数略解</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+
+  
+
+  <div class="rsspart">
+	<a href="" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		
+		
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2021 
+		
+		<a href="http://example.com" target="_blank" title="huolonggou">huolonggou</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+
+
+
+  </body>
+</html>

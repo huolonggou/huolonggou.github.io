@@ -1,0 +1,433 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>HTTP详解 | Huol&#39;s blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="huolonggou">
+    
+    <meta name="description" content="HTTP协议初相识HTTP协议(超文本传输协议),将超文本标记语言(HTML)从Web服务器传送到客户端,属于应用层协议,目前使用的HTTP协议基本都是基于TCP协议的。超文本:文本中存在超链接可以进行跳转HTTP协议的几次版本更迭:HTTP0.9 -&amp;gt; HTTP1.0 -&amp;gt; HTTP1">
+    
+    
+    
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/pacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/pacman.jpg">
+    
+    
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.svg" alt="Huol&#39;s blog" title="Huol&#39;s blog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Huol&#39;s blog">Huol&#39;s blog</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+					<li>
+					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:example.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2020/02/02/网络编程/HTTP协议详解/" title="HTTP详解" itemprop="url">HTTP详解</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://example.com" title="huolonggou">huolonggou</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2020-02-02T03:04:25.195Z" itemprop="datePublished">2020-02-02</time>
+    更新日期:<time datetime="2021-01-17T10:28:57.074Z" itemprop="dateModified">2021-01-17</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP%E5%8D%8F%E8%AE%AE%E5%88%9D%E7%9B%B8%E8%AF%86"><span class="toc-number">1.</span> <span class="toc-text">HTTP协议初相识</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP%E5%8D%8F%E8%AE%AE%E5%86%8D%E5%85%A5%E9%97%A8"><span class="toc-number">2.</span> <span class="toc-text">HTTP协议再入门</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP%E5%8D%8F%E8%AE%AE%E7%BB%93%E6%9E%84%E5%92%8C%E9%80%9A%E4%BF%A1%E5%8E%9F%E7%90%86"><span class="toc-number">3.</span> <span class="toc-text">HTTP协议结构和通信原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP%E5%92%8CHTTPS"><span class="toc-number">4.</span> <span class="toc-text">HTTP和HTTPS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP%E7%9A%84%E6%89%A9%E5%B1%95%E4%B8%8E%E6%8F%90%E5%8D%87"><span class="toc-number">5.</span> <span class="toc-text">HTTP的扩展与提升</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP%E5%AE%89%E5%85%A8%E6%9C%BA%E5%88%B6%E4%B8%8E%E6%94%BB%E5%87%BB"><span class="toc-number">6.</span> <span class="toc-text">HTTP安全机制与攻击</span></a></li></ol>
+		</div>
+		
+		<h3 id="HTTP协议初相识"><a href="#HTTP协议初相识" class="headerlink" title="HTTP协议初相识"></a>HTTP协议初相识</h3><p>HTTP协议(超文本传输协议),将超文本标记语言(HTML)从Web服务器传送到客户端,属于应用层协议,目前使用的HTTP协议基本都是基于TCP协议的。<br>超文本:文本中存在超链接可以进行跳转<br>HTTP协议的几次版本更迭:<br>HTTP0.9 -&gt; HTTP1.0 -&gt; HTTP1.1(目前仍然是所用最多的版本) -&gt; HTTP2.0 -&gt; HTTP3.0(仍处于概念阶段,基于QUIC协议)</p>
+<p>TCP的三次握手:</p>
+<ol>
+<li>第一次连接:客户端发送带有SYN标志(同步序列编号,是TCP/IP建立连接时使用的握手信号)的连接请求报文段,然后进入SYN-SEND状态,等待服务端的确认。</li>
+<li>第二次连接:服务端接收到客户端的SYN报文后会发送一个ACK信息进行确认,同时会发送一个SYN报文给客户端,SYN和ACK会放到一个报文段中,一并发送给客户端,此时服务端进入SYN_RECV状态。</li>
+<li>第三次连接:客户端收到后,会向服务器端发送一个ACK确认报文段,发送完毕后,客户端和服务端都进入ESTABLISHED状态,三次握手完成。</li>
+</ol>
+<p>三次握手的目的是确认双方的收发能力正常,更具体可以理解为双方都知道自己和对方的收发功能正常,三次恰好能完美地验证彼此收发功能是否正常。</p>
+<p>HTTP处理过程概述:<br>DNS查询以获得IP地址-&gt;三次握手建立TCP连接-&gt;发送HTTP请求</p>
+<h3 id="HTTP协议再入门"><a href="#HTTP协议再入门" class="headerlink" title="HTTP协议再入门"></a>HTTP协议再入门</h3><p>HTTP协议的特点:</p>
+<ol>
+<li>使用C/S模式,由客户端向服务器发出请求,服务器做出应答</li>
+<li>简单快速,客户端发送请求时,只需要传送请求方法和路径</li>
+<li>灵活,可以传输多种类型的数据对象,传输内容类型由content-type标识</li>
+<li>无连接,限制每次连接只处理一个请求,即服务器处理完客户的请求并收到应答后会断开连接,后续发展出长连接(keep-alive)</li>
+<li>无状态,如果后续处理需要之前发送的信息,则需要重新传输,后续发展出了cookie和session部分解决了这个问题</li>
+</ol>
+<p>补充一下URL和URI的区别<br>URI可以分为URL和URN,URN确定了东西的身份,URL提供了找到它的方式<br>URL是URI的一种,但并非所有URI都是URL<br>URI和URL最大的区别在于”访问机制”<br><a target="_blank" rel="noopener" href="http://www.baidu.com是uri,加上/">www.baidu.com是URI,加上</a> http:// 后才能称为URL</p>
+<p>HTTP请求报文常用参数分析</p>
+<p>HTTP请求报文由以下四部分组成:请求行,请求头,空行,请求体(GET请求没有)</p>
+<p>响应行由请求方法、URL和HTTP协议版本3个字段组成,它们用空格分隔。比如:GET /index.html HTTP/1.1</p>
+<p>请求头的参数:<br>Accept:浏览器端可以接受的媒体类型,比如text/html表示接受html文档,如果服务器没有此类型资源可以返回,会返回406错误。ACCEPT:*/*表示浏览器可以处理所有类型<br>Accept-Encoding:浏览器申明自己接收的编码方式,通常指定压缩方法,是否支持压缩,支持什么压缩方法(gzip,deflate)<br>Accept-Language:申明自己接收的语言,比如zh-CN表示中文。<br>Connection:表示连接状态,当该值为keep-alive时表示底层的TCP连接不会断开,客户端再次访问时会继续使用这条已建立的连接,参数值为close时,则表示需要重新建立TCP连接<br>Host:表示服务器的Internet主机和端口号<br>Referer:告诉服务器客户端是由哪个页面链接过来的<br>User-Agent:告诉Http服务器,客户端使用的浏览器类型和操作系统<br>Content-Type:说明报文内对象的媒体类型,比如:text/html和image/png</p>
+<p>HTTP响应报文与请求报文类似,大多数参数代表意义相同,分为响应行,响应头,空行,响应体四部分.<br>响应行由协议版本,状态码和状态描述三部分组成,比如:HTTP/1.1 200 OK</p>
+<p>HTTP请求方法详解:</p>
+<ol>
+<li>GET方法:用来请求访问已被URI标识的资源,提交数据量小,提交的信息直接包含在URL当中,也可以用来提交表单等数据,但一般并不这么做</li>
+<li>POST方法:POST方法的主要目的一般并非获取内容,而是提交数据,提交的数据被放在报文的请求体中,克服了GET方法中无法保密和数据量太小等缺点</li>
+<li>PUT方法:与POST方法十分类似,用于向服务器发送数据取代指点的原有内容,因为安全性上的缺陷,基本不用</li>
+<li>HEAD方法:类似于GET方法,只不过返回的结果没有具体内容,用于获取报头</li>
+<li>DELETE方法:请求删除指定资源,因为缺少一些验证机制,现在在一个网站中发现可以使用DELETE方法基本就是发现了漏洞</li>
+<li>OPTIONS方法:用来查询针对请求URI指定资源支持的方法</li>
+<li>TRACE方法:用来回显服务器收到的请求,用于测试和诊断,易引起攻击,很少使用</li>
+<li>CONNECT方法:开启一个客户端与所请求资源之间的通道,用在HTTP代理</li>
+</ol>
+<p>HTTP状态码详解:</p>
+<ul>
+<li>1XX:表示请求已被接受但是需要继续处理,这类响应是临时响应,只包含响应行和部分响应头信息,以空行结束,很少使用</li>
+<li>2XX:表示成功,即请求已经成功被服务器接收,理解,接受<br>常用的有:200 OK(接受并已处理),202 Accepted(接受但并未处理),206 Partial Content(请求部分内容)</li>
+<li>3XX:表示重定向,重定向目标会在本次响应的Location域中指明<br>常用的有:301 Moved Permanently(永久移动),302 Found(临时跳转),304 Not Modified(资源尚未修改,请使用缓存)</li>
+<li>4XX:表示请求错误<br>常用:400 Bad Request,401 Unauthorized,403 Forbidden,404 Not Found</li>
+<li>5XX:表示服务器错误<br>常用:500 Internal Server Error,502 Bad Gateway(充当网关或代理服务器,从远端服务器接收到一个无效请求)</li>
+</ul>
+<p>HTTP的状态管理:cookie和session</p>
+<p>Cookie是保存在客户端的,实际上是一小段文本信息,客户端请求服务器时会将cookie发送出去,服务器检查cookie以辨认用户状态</p>
+<p>Session则是保存在服务器端的,当用户首次访问网站时服务器会创建一个Session和相应的Session ID,并将Session ID发给用户,Session ID信息通常保存在用户本地的Cookie中</p>
+<p>Cookie和Session都是有有效期的,Cookie的有效期一般更长</p>
+<h3 id="HTTP协议结构和通信原理"><a href="#HTTP协议结构和通信原理" class="headerlink" title="HTTP协议结构和通信原理"></a>HTTP协议结构和通信原理</h3><p>URL编码:<br>在发送GET请求时,需要将参数经过编码后发送出去,这里就用到了URL编码,即将非ASCII字符(一些具有特殊含义的保留字除外)使用UTF-8编码,并在前面加%<br>保留字符:<br>常见的URL编码字符：</p>
+<ul>
+<li>%26代表&amp;</li>
+<li>%3d代表=</li>
+<li>%25代表%</li>
+<li>%20代表空格</li>
+</ul>
+<p>HTTP身份认证:<br>HTTP的身份认证方式主要有四种:BASIC认证,DIGEST认证,SSL客户端认证,以及基于表单的认证</p>
+<ul>
+<li>BASIC认证:发送base64编码的用户名和密码,基本没有安全性可言</li>
+<li>DIGEST认证:服务器端向客户端发送一次性的随机数(质询码),客户端发送摘要(md5)以及由质询码计算出的响应码,这种认证方式一定程度上解决了BASIC的问题,但仍然不够安全<br>前两种认证因为安全性较低的缘故,基本已经不再使用</li>
+<li>SSL认证,一般来说,SSL 客户端认证不仅依靠证书完成认证,一般会和基于表单认证组合形成一种双因素认证来使用,即认证过程中不仅需要密码这一个因素,还需要申请认证者提供其他特有信息作为另一个因素,与其组合使用的认证方式。第一个认证因素的 SSL 客户端证书用来认证客户端计算机,另一个认证因素的密码则用来确定这是用户本人的行为。通过双因素认证后,就可以确认是用户本人正在使用匹配正确的计算机访问服务器。</li>
+<li>基于表单验证:并非由HTTP协议中定义的,客户端会以表单的形式向服务器Web应用发送登录信息,按登录信息的验证结果认证。</li>
+</ul>
+<p>HTTP的长连接和短连接:</p>
+<p>HTTP是基于请求/响应模式的,因此只要服务端给了响应,本次连接就结束了<br>HTTP的长连接和短连接本质上是TCP连接的长连接和短连接,在HTTP/1.0协议下,默认使用的是短连接,而从HTTP/1.1开始,默认使用长连接,使用长连接的情况下,Connection参数值为keep-alive,可以在一定时间内保持连接</p>
+<p>短连接:建立连接-&gt;一次传输数据-&gt;关闭连接<br>长连接:建立连接-&gt;保持连接进行多次数据传输-&gt;关闭连接<br>在现代访问一个网页时,服务器端要发送html,css,js,图片音频等等许多数据,如果每次都用短连接,无疑是消耗巨大的,这也是为什么HTTP/1.1之后默认长连接的原因</p>
+<p>HTTP代理:<br>HTTP代理的原理并不复杂,客户端将请求发完代理服务器,代理服务器转发请求到服务器,服务器返回响应给代理服务器,代理服务器再将响应内容发给客户端<br>代理的作用:</p>
+<ol>
+<li>抓包,常见的比如Fiddler,抓包的原理就是代理</li>
+<li>FQ,利用代理服务器可以绕过墙</li>
+<li>匿名访问,跳板</li>
+<li>过滤器,拦截部分请求</li>
+</ol>
+<p>HTTP中介之网关:</p>
+<p>网关是在采用不同体系结构或协议的网络之间进行互通时,用于提供协议转换、路由选择、数据交换等网络兼容功能的设施,直白一点说就是一个翻译器<br>常见的网关类型:</p>
+<ul>
+<li>(HTTP/*) 服务器端Web网关<br>用HTTP协议与客户端进行通信,用其他协议与服务器端进行通讯</li>
+<li>(HTTP/HTTPS) 服务器端安全网关<br>将来自客户端的数据加密后发送到服务器</li>
+<li>(HTTPS/HTTP) 客户端安全加速器网关</li>
+<li>资源网关</li>
+</ul>
+<p>HTTP缓存:</p>
+<p>HTTP中有关缓存的参数:<br>缓存的目标一般是css,js,image等不容易变化的资源<br>Cache-Control:请求/响应头,缓存控制字段,no-store所有内容不缓存,no-cache缓存但是浏览器使用缓存之前,会请求服务器判断是否为最新,max-age请求缓存后多少秒内不会再次请求,s-maxage同上但是只对cdn有效,public客户端和代理服务器(CDN)都可以缓存,private只有客户端可以缓存<br>Last-Modified:响应头,资源最新修改时间,由服务器告诉浏览器<br>if-Modified-Since:请求头,资源最新修改时间,由浏览器告诉服务器,会和Last-Modified进行对比<br>Etag:响应头,资源标识,由服务器告诉浏览器<br>if-None-Match:与Etag为一对,进行对比<br>优先级是Etag&gt;Last-Modified</p>
+<p>CDN缓存:<br>CDN是构建在网络之上的内容分发网络,依靠部署在各地的服务器,均衡中心服务器的负载,有了它我们在请求的时候可以不直接请求中心服务器而是请求CDN服务器获取内容,大大减轻了服务器的负担,同时可以使得用户能够就近获取所需内容,提高了用户访问速度</p>
+<p>HTTP内容协商机制:</p>
+<ul>
+<li>客户端驱动<br>客户端发起请求,服务器发送可选项目,客户端做出选择后发送第二次请求    </li>
+<li>服务器驱动<br>服务器检查客户端请求头决定选择哪个版本的资源</li>
+<li>透明协商<br>某个中间设备代表客户端进行协商<br>相关参数:<br>Accept:告诉服务器需要的资源类型<br>Accept-Language:告知需要哪种语言的资源<br>Accept-Charset:告知服务器发送哪种字符集的资源<br>Accept-Encoding:告知服务器采用何种编码方式<br>Content-Type,Content-Language,Content-Type,Content-Encoding描述了服务器发送资源的参数,对应上述4个参数  </li>
+</ul>
+<p>HTTP断点续传和多线程下载:<br>断点续传过程:</p>
+<ol>
+<li>客户端已经下载512k文件,总大小为1024k,故发送请求,请求体中Range:bytes=512000-,意为从512k位置开始到文件尾</li>
+<li>服务器接收到请求,从文件512k位置开始传输,并在响应头中标识Content-Range:bytes 512000-某数字/1024000,且状态码不为200,而是206(请求部分内容)</li>
+</ol>
+<p>我们在视频网站看视频的时候,就用到了断点续传功能,在看视频时点F12,可看到客户端在不断使用Ajax技术发送请求,获取一段段的视频内容并在网页上播放</p>
+<h3 id="HTTP和HTTPS"><a href="#HTTP和HTTPS" class="headerlink" title="HTTP和HTTPS"></a>HTTP和HTTPS</h3><p>HTTP传输是明文的,相当于在网络上裸奔,传输信息容易被窃取,篡改<br>HTTPS可以理解为HTTP+TLS,其实就是在HTTP和TCP两者间加了一个中间层,将HTTP的内容进行加密后进行传输,接收方经过解密获取内容<br>TLS协议本身的内容十分复杂,用到了对称加密,非对称加密,数字证书等等,提供了内容加密(防止窃取),身份认证(由数字证书保证,保证用户访问的是想访问的网站),数据完整性(防止数据被篡改)<br>TLS协议也可以用在邮件发送上,即SMTP,POP3、IMAP三个协议上</p>
+<p>HTTPS的握手流程(首次):</p>
+<p>建立TCP连接进行http通信-&gt;302跳转到https-&gt;再次建立tcp连接以支持https-&gt;tls第一次握手(完成加密套件的协商和CA的确认)-&gt;tls第二次握手(CA域名解析,ocsp请求响应等)-&gt;进行通信</p>
+<p>HSTS策略:<br>但是当网站传输协议从 HTTP 到 HTTPS 之后,数据传输真的安全了吗?由于用户习惯,通常准备访问某个网站时,在浏览器中只会输入一个域名,而不会在域名前面加上 http:// 或者 https://,而是由浏览器自动填充,当前所有浏览器默认填充的都是http://。一般情况网站管理员会采用 302 跳转的方式由 HTTP 跳转到 HTTPS,但是这个过程总使用到 HTTP 因此容易发生劫持,受到第三方的攻击。</p>
+<p>这个时候就需要用到 HSTS（HTTP 严格安全传输）,网站可以选择使用HSTS策略，来让浏览器强制使用HTTPS与网站进行通信</p>
+<h3 id="HTTP的扩展与提升"><a href="#HTTP的扩展与提升" class="headerlink" title="HTTP的扩展与提升"></a>HTTP的扩展与提升</h3><p>HTTP协议是只能由客户端向服务端发送请求的,在一些要求低延时高刷新率的情况下需要客户端进行Ajax轮询或者长轮询,会消耗大量系统资源,为了改进这一缺陷,websocket协议便出现了</p>
+<p>WebSocket协议在2008年诞生,2011年成为国际标准,所有浏览器都已经支持了,默认情况下，Websocket协议使用80端口,而运行在TLS之上时,默认使用443端口。与HTTP和HTTPS是一样的</p>
+<p>WebSocket的特点:</p>
+<ul>
+<li>真正的全双工方式,客户端和服务端地位平等,都可以发起请求</li>
+<li>减少通讯量,不用发送大量重复的header</li>
+<li>复用性高</li>
+</ul>
+<p>流程:建立TCP连接-&gt;发送一次HTTP request要求切换协议-&gt;切换成websocket协议进行通信</p>
+<p>SPDY协议:</p>
+<p>针对HTTP协议的单路连接,一端请求,头部冗余等缺陷,SPDY协议出现了,这个协议在HTTP协议的基础上改进了HTTP协议,有以下优点:</p>
+<ol>
+<li>多路复用 请求优化</li>
+<li>支持服务器推送技术</li>
+<li>压缩了 HTTP 头</li>
+<li>强制使用 SSL 传输协议</li>
+<li>增加请求优先级,优先传输重要数据</li>
+</ol>
+<p>在HTTP2未推出之前，SPDY在业界内已经有一定的市场占用量，它的成绩是不可忽视的</p>
+<p>SPDY的后续:HTTP2.0出现</p>
+<p>HTTP/2的特点:</p>
+<ul>
+<li>多路复用 (Multiplexing)<br>多路复用允许同时通过单一的 HTTP/2 连接发起多重的请求-响应消息。因此 HTTP/2 可以很容易的去实现多流并行而不用依赖建立多个 TCP 连接，HTTP/2 把 HTTP 协议通信的基本单位缩小为一个一个的帧，这些帧对应着逻辑流中的消息。并行地在同一个 TCP 连接上双向交换消息。</li>
+<li>二进制分帧<br>在二进制分帧层中， HTTP/2 会将所有传输的信息分割为更小的消息和帧（frame）,并对它们采用二进制格式的编码 ，其中 HTTP1.x 的首部信息会被封装到 HEADER frame，而相应的 Request Body 则封装到 DATA frame 里面。</li>
+<li>首部压缩</li>
+<li>服务端推送<br>服务端推送是一种在客户端请求之前发送数据的机制。在 HTTP/2 中，服务器可以对客户端的一个请求发送多个响应。</li>
+</ul>
+<p>未来科技:HTTP/3</p>
+<p>HTTP2的缺陷:</p>
+<ol>
+<li>队头阻塞<br>当丢包发生时,HTTP2的表现甚至不如HTTP/1.1</li>
+<li>握手延迟大<br>这是由TCP握手的繁琐导致的</li>
+</ol>
+<p>由于HTTP2的缺陷大部分其实是由TCP协议的问题导致的,但是我们又无法将TCP协议做出修改(因为TCP协议一般由系统实现,且TCP的应用非常广泛),为了解决这一问题,谷歌转投UDP协议,并在UDP协议上实现了QUIC协议作为实现HTTP3的协议</p>
+<p>HTTP3的优势:</p>
+<ul>
+<li>来回通信延迟低</li>
+<li>无队头阻塞的多路复用</li>
+<li>前向纠错,丢包很少的情况下不必重传</li>
+</ul>
+<h3 id="HTTP安全机制与攻击"><a href="#HTTP安全机制与攻击" class="headerlink" title="HTTP安全机制与攻击"></a>HTTP安全机制与攻击</h3><ol>
+<li>验证机制安全:用户登录,找回密码,多段登录</li>
+<li>会话验证机制:cookie构造安全,cookie失效机制漏洞,cookie加密</li>
+<li>SQL注入漏洞,网站一般会将用户提交的用户名密码等参数构造成SQL查询语句查询数据库,用户如果发送一些特殊字符串(比如古老的’or’ 1=1)给服务器,可能在数据库查询阶段构造出特殊的查询语句引发信息泄露</li>
+<li>XSS(跨站脚本攻击):反射型XSS,存储型XSS,DOM型XSS(不涉及服务器,前两种则涉及服务器)</li>
+<li>CSRF(跨站请求伪造攻击)也被称为one-click attack,跟跨网站脚本相比，XSS 利用的是用户对指定网站的信任，CSRF 利用的是网站对用户网页浏览器的信任。</li>
+</ol>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://example.com/2020/02/02/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/HTTP%E5%8D%8F%E8%AE%AE%E8%AF%A6%E8%A7%A3/" data-title="HTTP详解 | Huol&#39;s blog" data-tsina="" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2020/02/16/Windows机制/Windows权限机制/" title="Windows权限机制">
+  <strong>PREVIOUS:</strong><br/>
+  <span>
+  Windows权限机制</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2020/01/28/网络编程/爬虫原理/"  title="爬虫原理">
+ <strong>NEXT:</strong><br/> 
+ <span>爬虫原理
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+  <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP%E5%8D%8F%E8%AE%AE%E5%88%9D%E7%9B%B8%E8%AF%86"><span class="toc-number">1.</span> <span class="toc-text">HTTP协议初相识</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP%E5%8D%8F%E8%AE%AE%E5%86%8D%E5%85%A5%E9%97%A8"><span class="toc-number">2.</span> <span class="toc-text">HTTP协议再入门</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP%E5%8D%8F%E8%AE%AE%E7%BB%93%E6%9E%84%E5%92%8C%E9%80%9A%E4%BF%A1%E5%8E%9F%E7%90%86"><span class="toc-number">3.</span> <span class="toc-text">HTTP协议结构和通信原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP%E5%92%8CHTTPS"><span class="toc-number">4.</span> <span class="toc-text">HTTP和HTTPS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP%E7%9A%84%E6%89%A9%E5%B1%95%E4%B8%8E%E6%8F%90%E5%8D%87"><span class="toc-number">5.</span> <span class="toc-text">HTTP的扩展与提升</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP%E5%AE%89%E5%85%A8%E6%9C%BA%E5%88%B6%E4%B8%8E%E6%94%BB%E5%87%BB"><span class="toc-number">6.</span> <span class="toc-text">HTTP安全机制与攻击</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+
+  
+
+  <div class="rsspart">
+	<a href="" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		
+		
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2021 
+		
+		<a href="http://example.com" target="_blank" title="huolonggou">huolonggou</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+
+
+
+  </body>
+</html>

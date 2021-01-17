@@ -1,0 +1,335 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>C语言预处理机制 | Huol&#39;s blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="huolonggou">
+    
+    <meta name="description" content="宏定义
+无参数宏定义#define PI 3.1415926#define _WINDOWS_
+
+
+需要注意的是宏只是简单的替换,宏常量没有数据类型,编译器不会对此进行检查,可能产生意想不到的错误.如果要定义常量,最好使用const定义常量.
+宏定义末尾不必加分号，否则连分号一并替换.
+预处理是在编">
+    
+    
+    
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/pacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/pacman.jpg">
+    
+    
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.svg" alt="Huol&#39;s blog" title="Huol&#39;s blog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Huol&#39;s blog">Huol&#39;s blog</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+					<li>
+					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:example.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/10/22/C和C++/C语言预处理/" title="C语言预处理机制" itemprop="url">C语言预处理机制</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://example.com" title="huolonggou">huolonggou</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2019-10-22T13:36:01.077Z" itemprop="datePublished">2019-10-22</time>
+    更新日期:<time datetime="2021-01-17T10:32:21.911Z" itemprop="dateModified">2021-01-17</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%8F%E5%AE%9A%E4%B9%89"><span class="toc-number">1.</span> <span class="toc-text">宏定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8C%96%E6%93%8D%E4%BD%9C%E7%AC%A6"><span class="toc-number">2.</span> <span class="toc-text">字符串化操作符#</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%A6%E5%8F%B7%E8%BF%9E%E6%8E%A5%E6%93%8D%E4%BD%9C%E7%AC%A6"><span class="toc-number">3.</span> <span class="toc-text">符号连接操作符##</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9D%A1%E4%BB%B6%E7%BC%96%E8%AF%91"><span class="toc-number">4.</span> <span class="toc-text">条件编译</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A2%84%E5%AE%9A%E4%B9%89%E7%9A%84%E5%AE%8F%E5%90%8D"><span class="toc-number">5.</span> <span class="toc-text">预定义的宏名</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pragma%E5%91%BD%E4%BB%A4"><span class="toc-number">6.</span> <span class="toc-text">#pragma命令</span></a></li></ol>
+		</div>
+		
+		<h3 id="宏定义"><a href="#宏定义" class="headerlink" title="宏定义"></a>宏定义</h3><ol>
+<li>无参数宏定义<br>#define PI 3.1415926<br>#define _WINDOWS_</li>
+</ol>
+<ul>
+<li>需要注意的是宏只是简单的替换,宏常量没有数据类型,编译器不会对此进行检查,可能产生意想不到的错误.如果要定义常量,最好使用const定义常量.</li>
+<li>宏定义末尾不必加分号，否则连分号一并替换.</li>
+<li>预处理是在编译之前的处理，而编译工作的任务之一就是语法检查，预处理不做语法检查.</li>
+</ul>
+<ol start="2">
+<li>带参宏定义<br>#define MAX(x, y)     (((x) &gt; (y)) ? (x) : (y))</li>
+</ol>
+<ul>
+<li>宏定义时建议所有的层次都要加括号,因为预处理只是把宏展开,不加括号可能造成意想不到的后果.比如数值计算出错.</li>
+<li>带参数的宏定义可以部分替代函数的功能,相比函数的好处是用宏只会增加编译时间,不会增加内存的分配.而函数则会在栈上分配空间,占用内存.</li>
+<li>#define可以定义多条语句，以替代多行的代码，但应注意替换后的形式，避免出错。宏定义在换行时要加上一个反斜杠”\”，而且反斜杠后面直接回车，不能有空格。例子:<br>#define TMAX_S(type, x, y) ({ <br>type _x = (x);  <br>type _y = (y);  <br>_x &gt; _y ? _x: _y; })<br>这是安全版的max函数.<br>Gcc编译器将包含在圆括号和大括号双层括号内的复合语句看作是一个表达式，它可出现在任何允许表达式的地方；复合语句中可声明局部变量，判断循环条件等复杂处理。而表达式的最后一条语句必须是一个表达式，它的计算结果作为返回值。这样部分替代了函数的功能.</li>
+<li>取消宏定义可用#undef命令<h3 id="字符串化操作符"><a href="#字符串化操作符" class="headerlink" title="字符串化操作符#"></a>字符串化操作符#</h3>下面开始就是我们在课堂上没怎么见过的用法了,在C语言的宏中，#的功能是将其后面的宏参数进行字符串化操作(Stringfication)，把随后的token(标识符,或者说变量名)转化为C语言的字符串,简单说就是将宏定义中的传入参数名转换成用一对双引号括起来参数名字符串.<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#define EXAMPLE(instr) printf(&quot;The input string is:%s\n&quot;, #instr)</span><br><span class="line">#define EXAMPLE2(instr) #instr</span><br></pre></td></tr></table></figure>
+EXAMPLE(Hello);会展开为printf(“The input string is:%s\n”,”Hello”);</li>
+<li>忽略传入参数名前面和后面的空格。</li>
+<li>当传入参数名间存在多个空格时，编译器会自动连接各个子字符串，每个子字符串间只以一个空格连接。<h3 id="符号连接操作符"><a href="#符号连接操作符" class="headerlink" title="符号连接操作符##"></a>符号连接操作符##</h3>##运算符(Token Pasting Operator)连接两个token为一个token,即将两个变量名合成一个变量名.<br>例子:<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#define LINK(A,B) A##B</span><br><span class="line">int ab &#x3D;9;</span><br><span class="line">printf(&quot;%d&quot;,LINK(a,b));</span><br></pre></td></tr></table></figure>
+输出结果就是9<h3 id="条件编译"><a href="#条件编译" class="headerlink" title="条件编译"></a>条件编译</h3>#if命令:<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#if 常量表达式</span><br><span class="line">  程序段</span><br><span class="line">#else</span><br><span class="line"> 程序段</span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+常量表达式是指值不会改变并且在编译过程就能够得到计算结果的表达式,另外#if预编译命令还可使用多分支语句格式,比如:<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">#if 常量表达式 1</span><br><span class="line"></span><br><span class="line">    程序段 1</span><br><span class="line"></span><br><span class="line">#elif 常量表达式 2</span><br><span class="line"></span><br><span class="line">    程序段 2</span><br><span class="line">......</span><br><span class="line">#elif 常量表达式 n</span><br><span class="line"></span><br><span class="line">    程序段 n</span><br><span class="line"></span><br><span class="line">#else</span><br><span class="line"></span><br><span class="line">    程序段 m</span><br><span class="line"></span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+#ifdef(或者#if defined)命令和#ifndef(或者#if !defined)<br>#ifdef命令的使用格式如下：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#ifdef 标识符</span><br><span class="line">程序段 1</span><br><span class="line">#else</span><br><span class="line">    程序段 2</span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+其意义是，如果#ifdef后面的标识符已被定义过，则对“程序段1”进行编译,如果没有定义标识符，则编译“程序段2”.<br>#ifndef命令类似,无非就是逻辑反过来,不再赘述.<h3 id="预定义的宏名"><a href="#预定义的宏名" class="headerlink" title="预定义的宏名"></a>预定义的宏名</h3></li>
+<li> <strong>DATE</strong>:当前源程序的创建日期。</li>
+<li> <strong>FILE</strong>:当前源程序的文件名称(包括盘符和路径)。</li>
+<li> <strong>LINE</strong>:当前被编译代码的行号。</li>
+<li> <strong>STDC</strong>:返回编译器是否位标准C,若其值为1表示符合标准C，否则不是标准C.</li>
+<li><strong>TIME</strong>:当前源程序的创建时间。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">#include&lt;stdio.h&gt;</span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">   printf(&quot;日期：%s\n&quot;,__DATE__);</span><br><span class="line">   printf(&quot;时间：%s\n&quot;,__TIME__);</span><br><span class="line">   printf(&quot;文件名：%s\n&quot;,__FILE__);</span><br><span class="line">   printf(&quot;这是第%d行代码\n&quot;,__LINE__);</span><br><span class="line">   printf(&quot;本编译器%s标准C\n&quot;,__STDC__?&quot;符合&quot;:&quot;不符合&quot;);</span><br><span class="line">   return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="pragma命令"><a href="#pragma命令" class="headerlink" title="#pragma命令"></a>#pragma命令</h3>该命令的作用是设定编译器的状态，或者指示编译器完全一些特定的动作。<br>pragma comment指令<br>格式为<br>#pragma comment( “comment-type” ,[commentstring] )</li>
+</ul>
+<p>该指令将一个注释记录放入一个对象文件或可执行文件中, comment-type(注释类型): 可以指定为 compiler、exestr、lib、linker、user 五种预定义的标识符的中的任意一种。</p>
+<p>compiler 选项<br>将编译器的版本号和名称放入目标文件中，本条注释记录将被编译器忽略。如果你为该记录类型提供了 commentstring 参数，编译器将会产生一个警告。</p>
+<p>exestr 选项<br>该选项将 commentstring 参数放入目标文件中，在链接的时候这个字符串将被放入到可执行文件中，当操作系统加载可执行文件的时候，该参数字符串不会被加载到内存中。但是，该字符串可以被 dumpbin 之类的程序查找出并打印出来，你可以用这个标识符将版本号码之类的信息嵌入到可执行文件中！</p>
+<p>lib 选项 (常用)<br>这是一个非常常用的关键字,用来将一个库文件链接到目标文件中</p>
+<p>常用的lib关键字，可以帮我们连入一个库文件。</p>
+<p>例如:</p>
+<p> #pragma comment(lib, “user32.lib”)<br>该指令用来将user32.lib库文件加入到本工程中</p>
+<p>linker 选项<br>将一个链接选项放入目标文件中，你可以使用这个指令来代替由命令行传入的或者在开发环境中设置的链接选项，你可以指定 /include 选项来强制包含某个对象，例如:</p>
+<p> #pragma comment(linker, “/include:__mySymbol”)<br>你可以在程序中设置下列链接选项</p>
+<p>/DEFAULTLIB<br>/EXPORT<br>/INCLUDE<br>/MERGE<br>/SECTION</p>
+<p>默认隐藏 CMD 窗口的编译选项<br> #pragma comment( linker, “/subsystem:”windows” /entry:”mainCRTStartup”” )<br>user 选项<br>将一般的注释信息放入目标文件中 commentstring 参数包含注释的文本信息,这个注释记录将被链接器忽略</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://example.com/2019/10/22/C%E5%92%8CC++/C%E8%AF%AD%E8%A8%80%E9%A2%84%E5%A4%84%E7%90%86/" data-title="C语言预处理机制 | Huol&#39;s blog" data-tsina="" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2019/10/22/C和C++/C语言零碎(1)/" title="C语言零碎(1)">
+  <strong>PREVIOUS:</strong><br/>
+  <span>
+  C语言零碎(1)</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2019/10/22/Windows机制/Windows下的各种链接/"  title="Windows系统下各种链接知识总结">
+ <strong>NEXT:</strong><br/> 
+ <span>Windows系统下各种链接知识总结
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+  <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%8F%E5%AE%9A%E4%B9%89"><span class="toc-number">1.</span> <span class="toc-text">宏定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8C%96%E6%93%8D%E4%BD%9C%E7%AC%A6"><span class="toc-number">2.</span> <span class="toc-text">字符串化操作符#</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%A6%E5%8F%B7%E8%BF%9E%E6%8E%A5%E6%93%8D%E4%BD%9C%E7%AC%A6"><span class="toc-number">3.</span> <span class="toc-text">符号连接操作符##</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9D%A1%E4%BB%B6%E7%BC%96%E8%AF%91"><span class="toc-number">4.</span> <span class="toc-text">条件编译</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A2%84%E5%AE%9A%E4%B9%89%E7%9A%84%E5%AE%8F%E5%90%8D"><span class="toc-number">5.</span> <span class="toc-text">预定义的宏名</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pragma%E5%91%BD%E4%BB%A4"><span class="toc-number">6.</span> <span class="toc-text">#pragma命令</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+
+  
+
+  <div class="rsspart">
+	<a href="" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		
+		
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2021 
+		
+		<a href="http://example.com" target="_blank" title="huolonggou">huolonggou</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+
+
+
+  </body>
+</html>

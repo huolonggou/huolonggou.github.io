@@ -1,0 +1,310 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>Huol&#39;s blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="huolonggou">
+    
+    
+    
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/pacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/pacman.jpg">
+    
+    
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.svg" alt="Huol&#39;s blog" title="Huol&#39;s blog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Huol&#39;s blog">Huol&#39;s blog</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+					<li>
+					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:example.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main">
+
+  <section class="post" itemscope itemprop="blogPost">
+  
+    <a href="/2020/01/11/网络编程/java网络编程/" title="Java网络编程" itemprop="url">
+  
+    <h1 itemprop="name">Java网络编程</h1>
+    
+     
+           <p itemprop="description" >url解析当我们在浏览器内输入一段网址的时候,比如 http://www.google.com 进行访问的时候,真实发送出去的可能并非如此,可能是http://www.google.com:80/search?q=test&amp;amp;safe=strict协议   域名/IP地址 </p>
+        
+    
+    <time datetime="2020-01-11T08:36:42.610Z" itemprop="datePublished">2020-01-11</time>
+  </a>
+</section>
+
+  <section class="post" itemscope itemprop="blogPost">
+  
+    <a href="/2019/12/15/Windows机制/Windows Mitigation/" title="Windows溢出保护机制" itemprop="url">
+  
+    <h1 itemprop="name">Windows溢出保护机制</h1>
+    
+     
+           <p itemprop="description" >ALSRALSR一般分为映像随机化,堆栈随机化和PEB,TEB随机化三种。
+
+映像随机化是在PE文件映射到内存时，对其加载的虚拟地址进行随机化处理，这个地址在系统启动时确定，系统重启后该地址会变化。
+堆栈随机化对应的是在运行时随机的选择堆栈的基址，与映像基址随机化不同的是堆栈的基</p>
+        
+    
+    <time datetime="2019-12-15T08:46:27.214Z" itemprop="datePublished">2019-12-15</time>
+  </a>
+</section>
+
+  <section class="post" itemscope itemprop="blogPost">
+  
+    <a href="/2019/11/27/Windows机制/Windows下的关键进程及线程/" title="Windows下的关键进程及线程" itemprop="url">
+  
+    <h1 itemprop="name">Windows下的关键进程及线程</h1>
+    
+     
+           <p itemprop="description" >系统进程及线程1.System Idle Process进程:pid为0,处理器有几个线程这玩意有几个线程,功能是循环统计CPU的空闲度,这个值越大越好。2.System进程：ID为4，包含了内核模式系统线程。系统辅助线程、执行体和驱动进程通过PsCreateSystemThre</p>
+        
+    
+    <time datetime="2019-11-27T11:20:56.695Z" itemprop="datePublished">2019-11-27</time>
+  </a>
+</section>
+
+  <section class="post" itemscope itemprop="blogPost">
+  
+    <a href="/2019/11/17/Windows机制/msvcrt的链接/" title="库的链接过程" itemprop="url">
+  
+    <h1 itemprop="name">库的链接过程</h1>
+    
+     
+           <p itemprop="description" >运行时库运行时库（Runtime library）通俗的说就是我们的程序运行的时候所依赖的库文件，从形式上来讲和我们自己开发的静态库、动态库没什么两样，只是它们由微软开发和维护，并提供了一些常用的功能支持（如malloc,free, printf等等），如果我们的程序需要使用这些</p>
+        
+    
+    <time datetime="2019-11-17T02:42:03.650Z" itemprop="datePublished">2019-11-17</time>
+  </a>
+</section>
+
+  <section class="post" itemscope itemprop="blogPost">
+  
+    <a href="/2019/11/15/Windows机制/利用WinApi列出进程/" title="利用winAPI列出进程" itemprop="url">
+  
+    <h1 itemprop="name">利用winAPI列出进程</h1>
+    
+     
+           <p itemprop="description" >12345678910111213141516171819202122232425262728#include&amp;lt;iostream&amp;gt;#include&amp;lt;Windows.h&amp;gt;#include&amp;lt;tlhelp32.h&amp;gt;using namespace st</p>
+        
+    
+    <time datetime="2019-11-15T03:54:00.617Z" itemprop="datePublished">2019-11-15</time>
+  </a>
+</section>
+
+  <section class="post" itemscope itemprop="blogPost">
+  
+    <a href="/2019/11/14/C和C++/C++中的重写,隐藏,重载/" title="C++中的重写、隐藏与重载的区别" itemprop="url">
+  
+    <h1 itemprop="name">C++中的重写、隐藏与重载的区别</h1>
+    
+     
+           <p itemprop="description" >C++面向对象的一些易混淆概念重写(覆盖)：是指派生类中存在重新定义的函数。其函数名，参数列表，返回值类型，所有都必须同基类中被重写的函数一致。只有函数体不同（花括号内），派生类调用时会调用派生类的重写函数，不会调用被重写函数。重写的基类中被重写的函数必须有virtual修饰。
+</p>
+        
+    
+    <time datetime="2019-11-14T04:50:05.212Z" itemprop="datePublished">2019-11-14</time>
+  </a>
+</section>
+
+  <section class="post" itemscope itemprop="blogPost">
+  
+    <a href="/2019/11/01/Windows机制/Windows下进程创建/" title="Windows进程创建过程" itemprop="url">
+  
+    <h1 itemprop="name">Windows进程创建过程</h1>
+    
+     
+           <p itemprop="description" >子系统类型选项当创建一个饮用程序的时候,连接器选项中有一个很重要的参数,就是子系统类型选择(/SUBSYSTEM:),其中比较常用的有CONSOLE,WINDOWS,NATIVE三个选项,对应CUI程序,GUI程序以及系统和驱动程序这三种.当用户运行应用程序时,系统的PE loa</p>
+        
+    
+    <time datetime="2019-11-01T13:27:04.964Z" itemprop="datePublished">2019-11-01</time>
+  </a>
+</section>
+
+  <section class="post" itemscope itemprop="blogPost">
+  
+    <a href="/2019/10/30/Windows机制/ntdll内的提权函数/" title="ntdll提权函数使用" itemprop="url">
+  
+    <h1 itemprop="name">ntdll提权函数使用</h1>
+    
+     
+           <p itemprop="description" >RtlAdjustPrivilege函数略解NTSTATUS RtlAdjustPrivilege(ULONG Privilege,BOOLEAN Enable,BOOLEAN CurrentThread,PBOOLEAN Enabled)
+参数的含义：Privilege [In</p>
+        
+    
+    <time datetime="2019-10-30T11:45:31.746Z" itemprop="datePublished">2019-10-30</time>
+  </a>
+</section>
+
+  <section class="post" itemscope itemprop="blogPost">
+  
+    <a href="/2019/10/22/Windows机制/Windows对Unicode的支持/" title="Windows编程中的Unicode问题" itemprop="url">
+  
+    <h1 itemprop="name">Windows编程中的Unicode问题</h1>
+    
+     
+           <p itemprop="description" >Windows操作系统内核对Unicode的支持Windows操作系统内核中的字符表示为UTF-16小尾序，可以正确处理、显示以4字节存储的字符。但是Windows API实际上仅能正确处理UCS-2字符，即仅以2字节存储的，码位小于U+FFFF的Unicode字符。其根源是Mi</p>
+        
+    
+    <time datetime="2019-10-22T13:36:01.124Z" itemprop="datePublished">2019-10-22</time>
+  </a>
+</section>
+
+  <section class="post" itemscope itemprop="blogPost">
+  
+    <a href="/2019/10/22/Windows机制/PostQuitMessage函数退出失败/" title="PostQuitMessage函数退出失败问题" itemprop="url">
+  
+    <h1 itemprop="name">PostQuitMessage函数退出失败问题</h1>
+    
+     
+           <p itemprop="description" >12345while (GetMessage(&amp;amp;msg,hWnd,0,0))&amp;#123;      TranslateMessage(&amp;amp;msg);    DispatchMessage(&amp;amp;msg);&amp;#125;
+这段代码要改为：
+12345while (G</p>
+        
+    
+    <time datetime="2019-10-22T13:36:01.109Z" itemprop="datePublished">2019-10-22</time>
+  </a>
+</section>
+
+
+  <nav id="page-nav" class="clearfix">
+    <a class="extend prev" rel="prev" href="/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/">Next &amp;raquo;</a>
+  </nav>
+
+</div>
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+
+  
+
+  <div class="rsspart">
+	<a href="" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		
+		
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2021 
+		
+		<a href="http://example.com" target="_blank" title="huolonggou">huolonggou</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+
+
+
+
+
+  </body>
+ </html>

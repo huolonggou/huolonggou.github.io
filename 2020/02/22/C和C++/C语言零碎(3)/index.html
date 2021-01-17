@@ -1,0 +1,294 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>C语言零碎(3) | Huol&#39;s blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="huolonggou">
+    
+    <meta name="description" content="位运算“&amp;amp;”运算:X&amp;amp;(X-1)可以将X的二进制最后一位”1”去掉,多次运算直到0可知X有多少位”1”X&amp;amp;0xf可以保留X的最后4位,形如0xf可称为掩码
+“xor”运算:b = a xor ba = a xor bb = a xor b通过这样一个运算可以将a,b两个数的值">
+    
+    
+    
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/pacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/pacman.jpg">
+    
+    
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.svg" alt="Huol&#39;s blog" title="Huol&#39;s blog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Huol&#39;s blog">Huol&#39;s blog</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+					<li>
+					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:example.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2020/02/22/C和C++/C语言零碎(3)/" title="C语言零碎(3)" itemprop="url">C语言零碎(3)</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://example.com" title="huolonggou">huolonggou</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2020-02-22T03:29:14.623Z" itemprop="datePublished">2020-02-22</time>
+    更新日期:<time datetime="2021-01-17T10:31:31.470Z" itemprop="dateModified">2021-01-17</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%8D%E8%BF%90%E7%AE%97"><span class="toc-number">1.</span> <span class="toc-text">位运算</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E4%BC%A0%E5%8F%82"><span class="toc-number">2.</span> <span class="toc-text">函数传参</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B0%83%E7%94%A8%E7%BA%A6%E5%AE%9A"><span class="toc-number">3.</span> <span class="toc-text">调用约定</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%9C%E4%B8%9A-%E9%80%86%E8%BD%AC%E5%8D%95%E8%AF%8D"><span class="toc-number">4.</span> <span class="toc-text">作业-逆转单词</span></a></li></ol>
+		</div>
+		
+		<h3 id="位运算"><a href="#位运算" class="headerlink" title="位运算"></a>位运算</h3><p>“&amp;”运算:<br>X&amp;(X-1)可以将X的二进制最后一位”1”去掉,多次运算直到0可知X有多少位”1”<br>X&amp;0xf可以保留X的最后4位,形如0xf可称为掩码</p>
+<p>“xor”运算:<br>b = a xor b<br>a = a xor b<br>b = a xor b<br>通过这样一个运算可以将a,b两个数的值交换,且不通过第三个变量<br>同样通过加法和乘法(其中一个值不能为零)也可以实现上述效果</p>
+<p>通过异或运算可以用单链表实现双链表的功能的关键:<br>p-&gt;next = pr*pl(pr为p的右节点,pl为p的左节点),满足这一关系的链表可以从右向左遍历,也可以从左向右遍历<br>然而这玩意可读性很差,个人觉得实际上没啥用</p>
+<h3 id="函数传参"><a href="#函数传参" class="headerlink" title="函数传参"></a>函数传参</h3><p>void func1(int x)//传值<br>void func2(int *x)//传指针(地址)<br>void func3(int &amp;x)//传引用  </p>
+<h3 id="调用约定"><a href="#调用约定" class="headerlink" title="调用约定"></a>调用约定</h3><p>stdcall:驱动默认调用约定,参数从右向左入栈,被调用函数恢复堆栈<br>cdecl:C语言默认调用约定,参数从右向左入栈,调用者恢复堆栈,所以可支持变参函数<br>fastcall:x64平台下默认调用约定,前四个参数通过寄存器(rcx,rdx,r8,r9)传参,但是在栈上会预留出这4个参数的空间,多余参数从右向左依次入栈,调用者恢复堆栈平衡,与x86平台下的fastcall约定有较大差别<br>thiscall:thiscall是唯一一个不能明确指明的函数修饰,因为thiscall不是关键字.它是C++类成员函数缺省的调用约定.由于成员函数调用还有一个this指针,因此必须特殊处理,参数从右向左入栈,如果参数个数确定,this指针通过ecx传递给被调用者,如果参数个数不确定,this指针在所有参数压栈后被压入堆栈,而对参数个数不定的,调用者清理堆栈,否则函数自己清理堆栈</p>
+<h3 id="作业-逆转单词"><a href="#作业-逆转单词" class="headerlink" title="作业-逆转单词"></a>作业-逆转单词</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">#include&lt;stdio.h&gt;</span><br><span class="line">void reverse_word(char *str)</span><br><span class="line">&#123;</span><br><span class="line">	if (!str)</span><br><span class="line">	&#123;</span><br><span class="line">		return;</span><br><span class="line">	&#125;</span><br><span class="line">	int len &#x3D; 0;</span><br><span class="line">	while (str[len])</span><br><span class="line">	&#123;</span><br><span class="line">		len++;</span><br><span class="line">	&#125;</span><br><span class="line">	for (int i &#x3D; 0; i &lt; len &#x2F; 2; i++)</span><br><span class="line">	&#123;</span><br><span class="line">		char tmp;</span><br><span class="line">		tmp &#x3D; str[i];</span><br><span class="line">		str[i] &#x3D; str[len - i - 1];</span><br><span class="line">		str[len - i - 1] &#x3D; tmp;</span><br><span class="line">	&#125;</span><br><span class="line">	int i &#x3D; 0;</span><br><span class="line">	int singleword_first &#x3D; 0;</span><br><span class="line">	while (i &lt;&#x3D; len)</span><br><span class="line">	&#123;</span><br><span class="line">		if (str[i] &#x3D;&#x3D; &#39; &#39;|| str[i] &#x3D;&#x3D; &#39;\0&#39;)</span><br><span class="line">		&#123;</span><br><span class="line">			for (int j &#x3D; singleword_first; j - singleword_first &lt; (i-singleword_first)&#x2F;2; j++)</span><br><span class="line">			&#123;</span><br><span class="line">				char tmp &#x3D; str[j];</span><br><span class="line">				str[j] &#x3D; str[i+singleword_first-j-1];</span><br><span class="line">				str[i + singleword_first - j-1] &#x3D; tmp;</span><br><span class="line">			&#125;</span><br><span class="line">			singleword_first &#x3D; i + 1;</span><br><span class="line">		&#125;</span><br><span class="line">		i++;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">	char str[128];</span><br><span class="line">	gets_s(str, 128);</span><br><span class="line">	reverse_word(str);</span><br><span class="line">	printf_s(str);</span><br><span class="line">	return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>  
+	</div>
+		<footer class="article-footer clearfix">
+
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://example.com/2020/02/22/C%E5%92%8CC++/C%E8%AF%AD%E8%A8%80%E9%9B%B6%E7%A2%8E(3)/" data-title="C语言零碎(3) | Huol&#39;s blog" data-tsina="" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2020/02/23/Windows机制/驱动框架/" title="NT驱动框架">
+  <strong>PREVIOUS:</strong><br/>
+  <span>
+  NT驱动框架</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2020/02/21/C和C++/C语言零碎(2)/"  title="C语言零碎(2)">
+ <strong>NEXT:</strong><br/> 
+ <span>C语言零碎(2)
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+  <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%8D%E8%BF%90%E7%AE%97"><span class="toc-number">1.</span> <span class="toc-text">位运算</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E4%BC%A0%E5%8F%82"><span class="toc-number">2.</span> <span class="toc-text">函数传参</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B0%83%E7%94%A8%E7%BA%A6%E5%AE%9A"><span class="toc-number">3.</span> <span class="toc-text">调用约定</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%9C%E4%B8%9A-%E9%80%86%E8%BD%AC%E5%8D%95%E8%AF%8D"><span class="toc-number">4.</span> <span class="toc-text">作业-逆转单词</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+
+  
+
+  <div class="rsspart">
+	<a href="" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		
+		
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2021 
+		
+		<a href="http://example.com" target="_blank" title="huolonggou">huolonggou</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+
+
+
+  </body>
+</html>
